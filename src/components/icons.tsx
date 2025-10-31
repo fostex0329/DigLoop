@@ -7,7 +7,7 @@ import {
 } from "lucide-react"
 
 import DigLoopIcon from "@/assets/DigLoop-icon.svg?react"
-import DigLoopText from "@/assets/DigLoop-text.svg?react"
+import DigLoopText from "@/assets/Digloop-text.svg?react"
 
 export type Icon = LucideIcon
 
