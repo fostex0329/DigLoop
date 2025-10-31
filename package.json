@@ -12,7 +12,7 @@
 	},
 	"dependencies": {
 		"@radix-ui/react-dropdown-menu": "^2.0.6",
-		"@radix-ui/react-slot": "^1.0.2",
+		"@radix-ui/react-slot": "^1.2.3",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.0.0",
 		"lucide-react": "^0.279.0",
@@ -41,6 +41,7 @@
 		"prettier-plugin-tailwindcss": "^0.5.6",
 		"tailwindcss": "^3.3.3",
 		"typescript": "^5.0.2",
-		"vite": "^4.4.5"
+		"vite": "^4.4.5",
+		"vite-plugin-svgr": "^4.5.0"
 	}
 }
