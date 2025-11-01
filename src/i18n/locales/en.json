@@ -1,0 +1,42 @@
+{
+	"meta": {
+		"description": "Digloop is a music discovery tool for curious listeners. Start with your favorite artist, explore related ones, and find your next obsession."
+	},
+	"home": {
+		"title": "Find related artists on Last.fm",
+		"subtitle": "Digloop is a music discovery tool for curious listeners. \n Start with your favorite artist, explore related ones, and find your next obsession."
+	},
+	"nav": {
+		"github": "GitHub",
+		"youtube": "YouTube"
+	},
+	"language": {
+		"select": "Select language",
+		"english": "English",
+		"japanese": "Japanese"
+	},
+	"search": {
+		"inputLabel": "Artist name",
+		"placeholder": "Dig from what you love. See where it leads.",
+		"buttonLabel": "Search",
+		"buttonLoading": "Searching...",
+		"noImage": "No Image",
+		"match": "{{match}}% match",
+		"digMore": "Let's dig more",
+		"artistImageAlt": "Artist image for {{name}}",
+		"searchArtist": "Search for {{name}}"
+	},
+	"errors": {
+		"emptyQuery": "Please enter an artist name.",
+		"apiKeyMissing": "Your Last.fm API key is missing.",
+		"apiFailure": "We couldn't reach Last.fm. Try again later.",
+		"noResults": "No related artists were found.",
+		"unknown": "Something went wrong while contacting Last.fm."
+	},
+	"theme": {
+		"toggle": "Toggle theme",
+		"light": "Light",
+		"dark": "Dark",
+		"system": "System"
+	}
+}

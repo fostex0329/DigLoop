@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react"
 import { useRoutes } from "react-router-dom"
-import { Loader2 } from "lucide-react"
+import { Loader2, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { SiteHeader } from "@/components/site-header"
 
@@ -12,6 +13,7 @@ import {
 	InputGroupInput,
 } from "./components/ui/input-group"
 import { TailwindIndicator } from "./components/tailwind-indicator"
+import { Button } from "./components/ui/button"
 
 type LastfmArtistImage = {
 	size: "small" | "medium" | "large" | "extralarge" | "mega"
@@ -54,6 +56,11 @@ type SimilarArtist = LastfmArtist & {
 	imageUrl?: string | null
 }
 
+type TranslationError = {
+	key: string
+	options?: Record<string, unknown>
+}
+
 const lastfmApiKey = import.meta.env.VITE_LASTFM_API_KEY?.trim()
 const LASTFM_PLACEHOLDER_HASH = "2a96cbd8b46e442fc41c2b86b821562f"
 
@@ -74,7 +81,7 @@ async function fetchSimilarArtists(
 	artistName: string,
 ): Promise<LastfmArtist[]> {
 	if (!lastfmApiKey) {
-		throw new Error("Last.fm APIキーが設定されていません。")
+		throw new Error("errors.apiKeyMissing")
 	}
 
 	const params = new URLSearchParams({
@@ -90,13 +97,13 @@ async function fetchSimilarArtists(
 	)
 
 	if (!response.ok) {
-		throw new Error("Last.fm APIの呼び出しに失敗しました。")
+		throw new Error("errors.apiFailure")
 	}
 
 	const data = (await response.json()) as LastfmSimilarResponse
 
 	if (data.error) {
-		throw new Error(data.message ?? "Last.fm APIでエラーが発生しました。")
+		throw new Error("errors.apiFailure")
 	}
 
 	return data.similarartists?.artist ?? []
@@ -104,7 +111,7 @@ async function fetchSimilarArtists(
 
 async function fetchTopAlbumImage(artistName: string): Promise<string | null> {
 	if (!lastfmApiKey) {
-		throw new Error("Last.fm APIキーが設定されていません。")
+		throw new Error("errors.apiKeyMissing")
 	}
 
 	const params = new URLSearchParams({
@@ -120,13 +127,13 @@ async function fetchTopAlbumImage(artistName: string): Promise<string | null> {
 	)
 
 	if (!response.ok) {
-		throw new Error("Last.fm APIの呼び出しに失敗しました。")
+		throw new Error("errors.apiFailure")
 	}
 
 	const data = (await response.json()) as LastfmTopAlbumsResponse
 
 	if (data.error) {
-		throw new Error(data.message ?? "Last.fm APIでエラーが発生しました。")
+		throw new Error("errors.apiFailure")
 	}
 
 	const albums = data.topalbums?.album ?? []
@@ -159,9 +166,10 @@ async function fetchTopAlbumImage(artistName: string): Promise<string | null> {
 const routes = [{ path: "/", element: <Home /> }]
 
 function Home() {
+	const { t } = useTranslation()
 	const [query, setQuery] = useState("")
 	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState<string | null>(null)
+	const [error, setError] = useState<TranslationError | null>(null)
 	const [relatedArtists, setRelatedArtists] = useState<SimilarArtist[]>([])
 	const [hasSearched, setHasSearched] = useState(false)
 
@@ -169,7 +177,7 @@ function Home() {
 		const trimmedQuery = rawArtistName.trim()
 
 		if (!trimmedQuery) {
-			setError("アーティスト名を入力してください。")
+			setError({ key: "errors.emptyQuery" })
 			setRelatedArtists([])
 			setHasSearched(false)
 			return
@@ -210,15 +218,15 @@ function Home() {
 			setRelatedArtists(artistsWithImages)
 
 			if (artistsWithImages.length === 0) {
-				setError("関連アーティストが見つかりませんでした。")
+				setError({ key: "errors.noResults" })
 			}
 		} catch (err) {
 			console.error(err)
-			setError(
-				err instanceof Error
-					? err.message
-					: "Last.fm APIの呼び出し中にエラーが発生しました。",
-			)
+			if (err instanceof Error && err.message.startsWith("errors.")) {
+				setError({ key: err.message })
+			} else {
+				setError({ key: "errors.unknown" })
+			}
 			setRelatedArtists([])
 		} finally {
 			setLoading(false)
@@ -236,50 +244,68 @@ function Home() {
 	}
 
 	return (
-		<section className="container grid gap-8 pb-8 pt-6 md:py-10">
-			<div className="flex max-w-3xl flex-col gap-6">
+		<section className="container flex justify-center gap-8 pb-8 pt-6 md:py-10">
+			<div className="flex max-w-4xl flex-col gap-6">
 				<div className="space-y-2">
 					<h1 className="text-3xl font-extrabold leading-tight tracking-tight md:text-5xl">
-						Last.fmで関連アーティストを検索
+						{t("home.title")}
 					</h1>
-					<p className="text-lg text-muted-foreground md:text-xl">
-						アーティスト名を入力すると、Last.fmのAPIを使って似ているアーティストを取得します。
+					<p className="whitespace-pre-line text-lg text-muted-foreground md:text-xl">
+						{t("home.subtitle")}
 					</p>
 				</div>
 
-				<form onSubmit={handleSubmit} className="w-full max-w-2xl space-y-2">
-					<InputGroup>
-						<InputGroupInput
-							autoComplete="on"
-							aria-label="アーティスト名"
-							placeholder="アーティスト名を検索"
-							value={query}
-							onChange={(event) => setQuery(event.target.value)}
-						/>
-						<InputGroupButton disabled={loading} type="submit">
+				<form onSubmit={handleSubmit} className="w-full space-y-2">
+					<InputGroup className="h-16 rounded-full border-white/20 bg-white/10 pl-4 pr-2 backdrop-blur-sm hover:bg-transparent">
+						<InputGroupButton
+							disabled={loading}
+							type="submit"
+							className="rounded-full"
+						>
 							{loading ? (
 								<>
 									<Loader2 className="size-4 animate-spin" />
-									検索中...
+									{t("search.buttonLoading")}
 								</>
 							) : (
-								"検索"
+								<>
+									{/* <Button
+										variant="ghost"
+										size="icon"
+										className="hover:bg-transparent"
+									>
+										<Search className="" />
+										<span className="sr-only">{t("search.buttonLabel")}</span>
+									</Button> */}
+									<Search className="h-12 w-12 rounded-full text-muted-foreground" />
+								</>
 							)}
 						</InputGroupButton>
+						<InputGroupInput
+							autoComplete="on"
+							aria-label={t("search.inputLabel")}
+							placeholder={t("search.placeholder")}
+							value={query}
+							onChange={(event) => setQuery(event.target.value)}
+							className="focus-visible:border-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent"
+						/>
 					</InputGroup>
 					<p className="text-sm text-muted-foreground">
-						手元の環境で`.env`に設定したAPIキー（`VITE_LASTFM_API_KEY`）が使われます。
+						{/* 手元の環境で`.env`に設定したAPIキー（`VITE_LASTFM_API_KEY`）が使われます。 */}
 					</p>
 				</form>
 
 				{error ? (
-					<p className="text-sm font-medium text-red-400">{error}</p>
+					<p className="text-sm font-medium text-red-400">
+						{t(error.key, error.options)}
+					</p>
 				) : null}
 
 				{hasSearched && !loading && !error && relatedArtists.length > 0 ? (
 					<div className="space-y-4">
-						<div className="grid gap-3 sm:grid-cols-2">
+						<div className="grid-1 grid gap-3">
 							{relatedArtists.map((artist) => {
+								const resolvedMatch = Number(artist.match)
 								const imageCandidates = [
 									artist.imageUrl,
 									artist.image?.find((img) => img.size === "extralarge")?.[
@@ -295,24 +321,27 @@ function Home() {
 										.find((url) => !isPlaceholderImage(url))
 										?.trim() ?? null
 
-								const similarity =
-									artist.match && !Number.isNaN(Number(artist.match))
-										? `${Math.round(Number(artist.match) * 100)}% match`
-										: null
+								const similarity = !Number.isNaN(resolvedMatch)
+									? t("search.match", {
+											match: Math.round(resolvedMatch * 100),
+										})
+									: null
 
 								const cardContent = (
 									<>
 										{imageUrl?.length ? (
 											<img
-												alt={`${artist.name}のアーティスト画像`}
+												alt={t("search.artistImageAlt", {
+													name: artist.name,
+												})}
 												className="size-14 flex-shrink-0 rounded object-cover"
 												height={56}
 												src={imageUrl}
 												width={56}
 											/>
 										) : (
-											<div className="flex size-14 flex-shrink-0 items-center justify-center rounded bg-white/10 text-sm text-muted-foreground">
-												No Image
+											<div className="flex size-14 flex-shrink-0 items-center justify-center rounded bg-white/10 pl-2 text-sm text-muted-foreground backdrop-blur-sm">
+												{t("search.noImage")}
 											</div>
 										)}
 
@@ -330,7 +359,7 @@ function Home() {
 								return (
 									<div
 										key={artist.name}
-										className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 transition hover:border-white/30 hover:bg-white/10"
+										className="flex items-center gap-3 rounded-2xl border border-white/10  bg-white/10 p-3 backdrop-blur-sm transition hover:border-white/30 hover:bg-white/10"
 									>
 										{artist.url ? (
 											<a
@@ -352,10 +381,12 @@ function Home() {
 											onClick={() => handleRelatedArtistSearch(artist.name)}
 											className="group ml-2 inline-flex h-11 items-center overflow-hidden rounded-full border border-white/20 bg-white/10 px-3 text-white transition-all hover:gap-2 hover:border-white/40 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
 										>
-											<span className="sr-only">{artist.name}を検索する</span>
+											<span className="sr-only">
+												{t("search.searchArtist", { name: artist.name })}
+											</span>
 											<Icons.shovel className="size-4 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
 											<span className="max-w-0 translate-x-2 text-nowrap text-xs font-medium tracking-wide text-white/90 opacity-0 transition-all duration-300 ease-out group-hover:max-w-[120px] group-hover:translate-x-0 group-hover:opacity-100">
-												let&apos;s dig more
+												{t("search.digMore")}
 											</span>
 										</button>
 									</div>
@@ -380,7 +411,7 @@ function App() {
 				outerVignette={true}
 				centerVignette={true}
 				smooth={true}
-				className="opacity-60"
+				className="opacity-45"
 				glitchColors={["#2b4539", "#61dca3", "#61b3dc"]}
 				characters="ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$&*()-_+=/[]{};:<>.,0123456789"
 			/>

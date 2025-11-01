@@ -1,0 +1,42 @@
+{
+	"meta": {
+		"description": "Digloopは、音楽を掘るリスナーのためのツール。好きなアーティストから始めて、新しいアーティストを見つけよう。"
+	},
+	"home": {
+		"title": "Last.fmで関連アーティストを探す",
+		"subtitle": "Digloopは音楽をディグるリスナーのためのツール。\n 好きなアーティストから始めて、新しいアーティストを見つけよう。"
+	},
+	"nav": {
+		"github": "GitHub",
+		"youtube": "YouTube"
+	},
+	"language": {
+		"select": "言語を選択",
+		"english": "英語",
+		"japanese": "日本語"
+	},
+	"search": {
+		"inputLabel": "アーティスト名",
+		"placeholder": "ハマってる音から、次の“推し”を見つけよう。",
+		"buttonLabel": "検索",
+		"buttonLoading": "検索中...",
+		"noImage": "画像なし",
+		"match": "{{match}}% 一致",
+		"digMore": "もっとディグる",
+		"artistImageAlt": "{{name}}のアーティスト画像",
+		"searchArtist": "{{name}}を検索する"
+	},
+	"errors": {
+		"emptyQuery": "アーティスト名を入力してください。",
+		"apiKeyMissing": "Last.fmのAPIキーが設定されていません。",
+		"apiFailure": "Last.fmへのアクセスに失敗しました。時間をおいて再試行してください。",
+		"noResults": "関連アーティストが見つかりませんでした。",
+		"unknown": "Last.fmとの通信中に問題が発生しました。"
+	},
+	"theme": {
+		"toggle": "テーマを切り替える",
+		"light": "ライト",
+		"dark": "ダーク",
+		"system": "システム"
+	}
+}

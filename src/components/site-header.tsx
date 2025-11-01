@@ -1,11 +1,15 @@
+import { LanguageSelector } from "@/components/LanguageSelector"
 import { Icons } from "@/components/icons"
 import { MainNav } from "@/components/main-nav"
 import { ModeToggle } from "@/components/mode-toggle"
 import { buttonVariants } from "@/components/ui/button"
 import { siteConfig } from "@/config/site"
 import { Link } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 export function SiteHeader() {
+  const { t } = useTranslation()
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
@@ -20,7 +24,7 @@ export function SiteHeader() {
                 })}
               >
                 <Icons.gitHub className="h-5 w-5" />
-                <span className="sr-only">GitHub</span>
+                <span className="sr-only">{t("nav.github")}</span>
               </div>
             </Link>
             <Link
@@ -35,9 +39,10 @@ export function SiteHeader() {
                 })}
               >
                 <Icons.youtube className="h-5 w-5" />
-                <span className="sr-only">YouTube</span>
+                <span className="sr-only">{t("nav.youtube")}</span>
               </div>
             </Link>
+            <LanguageSelector />
             <ModeToggle />
           </nav>
         </div>
