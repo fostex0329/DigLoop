@@ -13,7 +13,7 @@ import {
 	InputGroupInput,
 } from "./components/ui/input-group"
 import { TailwindIndicator } from "./components/tailwind-indicator"
-import { Button } from "./components/ui/button"
+// import { Button } from "./components/ui/button"
 
 type LastfmArtistImage = {
 	size: "small" | "medium" | "large" | "extralarge" | "mega"
